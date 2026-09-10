@@ -523,6 +523,12 @@ h1, h2, h3, h4, h5, h6 {
 .item-list li:last-child {
   border-bottom: none;
 }
+.item-list a.link-disabled {
+  color: var(--text-lt);
+  text-decoration: none;
+  pointer-events: none;
+  cursor: default;
+}
 
 .columns {
   column-count: 2;
