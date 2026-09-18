@@ -24,7 +24,10 @@
     "state": "live"
   },
   "05": {
-    "state": "pending"
+    "by": null,
+    "published_at": null,
+    "source_sha": "029ba264f57f499961016d7318d38c00e522ff78",
+    "state": "live"
   },
   "06": {
     "state": "pending"
