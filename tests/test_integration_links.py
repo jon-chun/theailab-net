@@ -6,7 +6,7 @@ from urllib.parse import unquote
 
 SITE_ROOT = Path(__file__).parent.parent
 
-EXPECTED_NAV_LABELS = {"Home", "Syllabus", "Schedule", "Assignments", "Policies", "About"}
+EXPECTED_NAV_LABELS = {"Home", "Syllabus", "Readings", "Projects", "Policies", "About"}
 
 
 def _rel(path):
