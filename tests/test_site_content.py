@@ -18,6 +18,7 @@ PROJECTS_LABEL = "Projects"
 RETIRED_LABELS = {"Schedule", "Assignments"}
 
 WEEK06_TITLE = "Week 6: AI-SWE with Mini-Project #2 - A Web CMS"
+WEEK07_TITLE = "Week 7: Moar AI-SWE please"
 
 # Common misspellings that have slipped into drafts before.
 MISSPELLINGS = [
@@ -189,6 +190,47 @@ class TestWeek06:
     def test_final_due_date_stated(self, page):
         intro = page.select_one(".page-content p").get_text(" ", strip=True)
         assert "Tuesday, Oct 6" in intro
+
+
+@pytest.fixture(scope="module")
+def page7():
+    return _soup(SITE_ROOT / "weeks" / "week-07.html")
+
+
+class TestWeek07:
+    def test_schedule_link_active_with_title(self):
+        links = {nn: (text, enabled) for nn, text, enabled in _schedule_week_links()}
+        assert links["07"] == (WEEK07_TITLE, True)
+
+    def test_title_and_hero(self, page7):
+        assert page7.select_one("section.hero h1").get_text(" ", strip=True) == WEEK07_TITLE
+        assert page7.title.get_text() == f"{WEEK07_TITLE} – IPHS 400: Frontiers in AI"
+
+    def test_is_live(self, page7):
+        assert page7.select_one(".notice-pending") is None
+        assert "sync:state live" in (SITE_ROOT / "weeks" / "week-07.html").read_text(encoding="utf-8")
+
+    def test_section_structure_and_dates(self, page7):
+        h2 = [h.get_text(strip=True) for h in page7.select(".page-content h2")]
+        assert h2 == ["Introduction", "Tuesday (Oct 6, 2026)", "Thursday (Oct 8, 2026)"]
+        h3 = [h.get_text(strip=True) for h in page7.select(".page-content h3")]
+        assert h3 == ["Presentations", "Readings", "Coding"] * 2
+
+    def test_expected_links_present(self, page7):
+        hrefs = [a["href"] for a in page7.select(".page-content a[href]")]
+        assert len(hrefs) == 20
+        assert len(set(hrefs)) == 20
+        for must in [
+            "https://code.claude.com/docs/en/goal",
+            "https://www.aihero.dev/skills-handoff",
+            "https://x.com/katelelkins/status/2105819502630068450",
+            "https://www.youtube.com/watch?v=Cq8qO-NjYIg",
+            "https://www.youtube.com/watch?v=b6cbxSaa4U4",
+        ]:
+            assert must in hrefs, must
+
+    def test_no_youtube_radio_params(self, page7):
+        assert not [a["href"] for a in page7.select("a[href]") if "start_radio" in a["href"]]
 
 
 class TestWeekPageQuality:

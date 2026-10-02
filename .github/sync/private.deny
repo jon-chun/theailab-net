@@ -34,6 +34,8 @@ weeks/test.html                 # stray test page, not linked from index.html or
 exercises/**                    # not linked from index.html; instructor/student materials
 presentations/**                # not linked from index.html; lecture decks and notes
 quizes/**                       # not linked from index.html; quiz drafts and prompts
+manuals/**                      # not linked from index.html; lab and setup manuals
+miniprojects/**                 # not linked from index.html; MP docs, student submissions and grades
 *-notes.md
 *.private.*
 *.draft.*
