@@ -3,6 +3,7 @@
 # repo-root-relative tracked paths using fnmatch-style globs (see guard).
 dev/**
 dev-notes/**
+dev_notes/**
 docs-project/**
 emails/**                       # private class-email archive (PII: student names/addresses)
 docs/**                         # decision 2

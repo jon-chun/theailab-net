@@ -214,18 +214,23 @@ class TestWeek07:
         h2 = [h.get_text(strip=True) for h in page7.select(".page-content h2")]
         assert h2 == ["Introduction", "Tuesday (Oct 6, 2026)", "Thursday (Oct 8, 2026)"]
         h3 = [h.get_text(strip=True) for h in page7.select(".page-content h3")]
-        assert h3 == ["Presentations", "Readings", "Coding"] * 2
+        assert h3 == ["Presentations", "Readings", "Coding"]
+
+    def test_thursday_is_break(self, page7):
+        thu = page7.select_one("#thursday-oct-8-2026")
+        assert thu.find_next_sibling().get_text(strip=True) == "Enjoy your break."
+        assert thu.find_next_sibling("ul") is None
 
     def test_expected_links_present(self, page7):
         hrefs = [a["href"] for a in page7.select(".page-content a[href]")]
-        assert len(hrefs) == 20
-        assert len(set(hrefs)) == 20
+        assert len(hrefs) == 5
+        assert len(set(hrefs)) == 5
         for must in [
+            "https://www.youtube.com/watch?v=_rtp1XzaP6Q&t=1159s",
+            "https://www.youtube.com/watch?v=bs1qPy_CWkM",
             "https://code.claude.com/docs/en/goal",
-            "https://www.aihero.dev/skills-handoff",
-            "https://x.com/katelelkins/status/2105819502630068450",
-            "https://www.youtube.com/watch?v=Cq8qO-NjYIg",
-            "https://www.youtube.com/watch?v=b6cbxSaa4U4",
+            "https://www.youtube.com/watch?v=hy8UstR2NEg&t=957s",
+            "https://www.youtube.com/watch?v=j0yyNQ5eTSk",
         ]:
             assert must in hrefs, must
 
