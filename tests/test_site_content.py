@@ -19,6 +19,8 @@ RETIRED_LABELS = {"Schedule", "Assignments"}
 
 WEEK06_TITLE = "Week 6: AI-SWE with Mini-Project #2 - A Web CMS"
 WEEK07_TITLE = "Week 7: Moar AI-SWE please"
+WEEK08_TITLE = "Week 8: Review and Revise Mini-Project #2"
+WEEK09_TITLE = "Week 9: Comparative Agent Harnesses"
 
 # Common misspellings that have slipped into drafts before.
 MISSPELLINGS = [
@@ -216,6 +218,11 @@ class TestWeek07:
         h3 = [h.get_text(strip=True) for h in page7.select(".page-content h3")]
         assert h3 == ["Presentations", "Readings", "Coding"]
 
+    def test_tuesday_presenters(self, page7):
+        tue = page7.select_one("#tuesday-oct-6-2026")
+        first = tue.find_next_sibling("ul").select_one("li").get_text(strip=True)
+        assert first == "Primary: Joe, Thakur"
+
     def test_thursday_is_break(self, page7):
         thu = page7.select_one("#thursday-oct-8-2026")
         assert thu.find_next_sibling().get_text(strip=True) == "Enjoy your break."
@@ -236,6 +243,118 @@ class TestWeek07:
 
     def test_no_youtube_radio_params(self, page7):
         assert not [a["href"] for a in page7.select("a[href]") if "start_radio" in a["href"]]
+
+
+@pytest.fixture(scope="module")
+def page8():
+    return _soup(SITE_ROOT / "weeks" / "week-08.html")
+
+
+class TestWeek08:
+    def test_schedule_link_active_with_title(self):
+        links = {nn: (text, enabled) for nn, text, enabled in _schedule_week_links()}
+        assert links["08"] == (WEEK08_TITLE, True)
+
+    def test_title_and_hero(self, page8):
+        assert page8.select_one("section.hero h1").get_text(" ", strip=True) == WEEK08_TITLE
+        assert page8.title.get_text() == f"{WEEK08_TITLE} – IPHS 400: Frontiers in AI"
+
+    def test_is_live(self, page8):
+        assert page8.select_one(".notice-pending") is None
+        assert "sync:state live" in (SITE_ROOT / "weeks" / "week-08.html").read_text(encoding="utf-8")
+
+    def test_section_structure_and_dates(self, page8):
+        h2 = [h.get_text(strip=True) for h in page8.select(".page-content h2")]
+        assert h2 == ["Introduction", "Tuesday (Oct 13, 2026)", "Thursday (Oct 15, 2026)"]
+        assert page8.select(".page-content h3") == []
+
+    def test_introduction_keeps_review_message(self, page8):
+        intro = page8.select_one("#introduction").find_next_sibling("p")
+        text = " ".join(intro.get_text().split())
+        assert text.startswith("Review and revise Mini-Project #2 Web CMS:")
+        assert "approximately 6 hours" in text
+
+    def test_tuesday_resubmit_and_portfolio(self, page8):
+        tue = page8.select_one("#tuesday-oct-13-2026")
+        items = [" ".join(li.get_text().split()) for li in tue.find_next_sibling("ul").select("li")]
+        assert items == [
+            "Review Mini-Project #2 and re-submit it by the new deadline, Thursday, Oct 15.",
+            "Polish your digital portfolio for future interviews and for an optional public presentation.",
+        ]
+
+    def test_thursday_left_empty(self, page8):
+        thu = page8.select_one("#thursday-oct-15-2026")
+        assert thu.find_next_sibling() is None
+
+    def test_no_new_readings(self, page8):
+        assert page8.select(".page-content a[href]") == []
+
+
+class TestWeek09:
+    def test_schedule_link_disabled_with_title(self):
+        links = {nn: (text, enabled) for nn, text, enabled in _schedule_week_links()}
+        assert links["09"] == (WEEK09_TITLE, False)
+
+    def test_is_pending_draft_with_dates(self):
+        html = (SITE_ROOT / "weeks" / "week-09.html").read_text(encoding="utf-8")
+        assert "sync:state pending" in html
+        assert "Tuesday (Oct 20, 2026)" in html and "Thursday (Oct 22, 2026)" in html
+
+    def test_source_is_draft_template(self):
+        md = (SITE_ROOT / "weeks" / "week-09.md").read_text(encoding="utf-8")
+        assert 'title: "Comparative Agent Harnesses"' in md
+        assert "status: draft" in md
+        assert "## Tuesday (Oct 20, 2026)" in md and "## Thursday (Oct 22, 2026)" in md
+        assert "](http" not in md, "Week 9 sections start empty for manual editing"
+
+
+class TestWeekDates:
+    """Every dated day heading matches the Fall 2026 calendar (Tue/Thu classes)."""
+
+    @staticmethod
+    def _class_days(nn):
+        import datetime as dt
+        if nn == 1:  # Week 1: Thursday Aug 27 only
+            return {"Thursday": dt.date(2026, 8, 27)}
+        tue = dt.date(2026, 9, 1) + dt.timedelta(weeks=nn - 2)
+        return {"Tuesday": tue, "Thursday": tue + dt.timedelta(days=2)}
+
+    @staticmethod
+    def _label(d):
+        return f"{d:%b} {d.day}, {d.year}"
+
+    def _check(self, nn, text):
+        bad = []
+        days = self._class_days(nn)
+        for day, date in re.findall(r"\b(Tuesday|Thursday) \(([A-Z][a-z]{2} \d{1,2}, \d{4})\)", text):
+            want = days.get(day)
+            if want is None or date != self._label(want):
+                bad.append(f"week {nn:02d}: {day} ({date})")
+        return bad
+
+    def test_week_pages_use_calendar_dates(self):
+        bad = []
+        for p in sorted((SITE_ROOT / "weeks").glob("week-*.html")):
+            m = WEEK_RE.search(p.name)
+            if m:
+                bad += self._check(int(m.group(1)), _soup(p).get_text(" "))
+        assert not bad, bad
+
+    def test_week_sources_use_calendar_dates(self):
+        bad = []
+        for p in sorted((SITE_ROOT / "weeks").glob("week-[0-9][0-9].md")):
+            m = re.match(r"week-(\d{2})", p.name)
+            if int(m.group(1)) >= 1:
+                text = re.sub(r"(?i)\b(TUESDAY|THURSDAY)\b", lambda w: w.group(1).title(),
+                              p.read_text(encoding="utf-8"))
+                bad += [f"{p.name}: {b}" for b in self._check(int(m.group(1)), text)]
+        assert not bad, bad
+
+    def test_only_week_md_is_a_live_source(self):
+        """Old -content.md drafts are archived so week-NN.md is the single source."""
+        stray = [p.name for p in (SITE_ROOT / "weeks").glob("week-*-content*.md")
+                 if not p.name.endswith("-ARCHIVE.md") and not p.name.startswith("week-00")]
+        assert not stray, stray
 
 
 class TestWeekPageQuality:

@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Shared pre-push hook (synced A -> B; see .githooks/pre-commit header
+# for the repo-role detection rationale).
+#
+# Repo B (public): run public_guard.py against HEAD's tree (git ls-files
+# based, so the check matches exactly what will be pushed, independent
+# of the working tree) and block the push on any violation.
+#
+# Repo A (dev): belt-and-braces against ever pushing to a remote named
+# "public" -- this is on top of that remote's push URL being set to
+# DISABLED (see plan §5.1 step 3), not a replacement for it.
+#
+# git invokes pre-push as: pre-push <remote-name> <remote-url>
+# and feeds "<local-ref> <local-sha1> <remote-ref> <remote-sha1>" lines
+# on stdin, one per ref being pushed. We only need $1 (remote name) for
+# the A-side guard; consume stdin so git doesn't warn about it.
+
+set -euo pipefail
+
+remote_name="${1:-}"
+# remote_url="${2:-}"
+
+repo_root=$(git rev-parse --show-toplevel)
+cd "$repo_root"
+
+is_repo_a=0
+if [ -d "$repo_root/.sync" ]; then
+  is_repo_a=1
+fi
+
+if [ "$is_repo_a" -eq 1 ]; then
+  # Drain stdin (ref update lines) without acting on them.
+  cat >/dev/null || true
+
+  if [ "$remote_name" = "public" ]; then
+    echo "pre-push: refusing to push repo A (dev) to remote 'public'." >&2
+    echo "pre-push: A -> B only happens via tree export (.sync/push.sh), never via git push." >&2
+    echo "pre-push: if you believe this is legitimate, fix the remote configuration instead of bypassing this hook." >&2
+    exit 1
+  fi
+
+  exit 0
+fi
+
+# ---------------------------------------------------------------
+# Repo B: verify HEAD's tree (what is about to be pushed), not the
+# working tree, using git ls-files against HEAD's commit.
+# ---------------------------------------------------------------
+
+# Consume the ref-update lines from stdin; we only need to know that at
+# least one push is happening, which invoking this hook already implies.
+cat >/dev/null || true
+
+if [ ! -f "$repo_root/.github/sync/public_guard.py" ]; then
+  echo "pre-push: WARNING: .github/sync/public_guard.py not found; cannot verify public-safety. Blocking push until the guard is present." >&2
+  exit 1
+fi
+
+guard_args=("$repo_root")
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-push: WARNING: gitleaks not found on PATH; running guard with --skip-gitleaks." >&2
+  guard_args+=("--skip-gitleaks")
+fi
+
+# public_guard.py is documented to accept a repo_root and audit its
+# tracked tree; to make sure we validate HEAD (what will actually be
+# pushed) rather than a dirty working tree, use a worktree-free check
+# via `git ls-files` -- delegate that distinction to the guard itself
+# by pointing it at the repo root (guard contract: "git ls-files based,
+# so it matches what will be pushed"). We additionally guard here
+# against a dirty worktree masking what HEAD would push.
+if [ -n "$(git status --porcelain)" ]; then
+  echo "pre-push: WARNING: working tree is dirty; public_guard.py output reflects the working tree, not strictly HEAD. Commit or stash before pushing for a precise check." >&2
+fi
+
+if ! python3 "$repo_root/.github/sync/public_guard.py" "${guard_args[@]}"; then
+  echo "pre-push: public_guard.py reported violations against HEAD's tree; blocking push." >&2
+  exit 1
+fi
+
+exit 0

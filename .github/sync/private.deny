@@ -3,6 +3,7 @@
 # repo-root-relative tracked paths using fnmatch-style globs (see guard).
 dev/**
 dev-notes/**
+archive_ai-profile/**          # retired ai-profile tool archive (2026-10-07); private, not linked from index.html
 dev_notes/**
 docs-project/**
 emails/**                       # private class-email archive (PII: student names/addresses)
@@ -43,6 +44,8 @@ miniprojects/**                 # not linked from index.html; MP docs, student s
 _drafts/**
 _wip/**
 ????-??-??-??????-*.txt         # CLI session transcripts
+transcripts/**                  # CLI session transcripts kept under transcripts/ (2026-10-07)
+codex-session-*.md              # Codex CLI session exports
 *.transcript.*
 *.log
 *.pem

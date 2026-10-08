@@ -16,6 +16,8 @@ permissions:
 jobs:
   test:
     name: Run site test suite
+    # Only the public repo has the site layout the tests assume and the Netlify secrets.
+    if: github.repository == 'jon-chun/theailab-net'
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -45,6 +47,7 @@ jobs:
   deploy:
     name: Deploy production site
     needs: test
+    if: github.repository == 'jon-chun/theailab-net'
     runs-on: ubuntu-latest
     timeout-minutes: 5
 

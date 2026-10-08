@@ -225,3 +225,6 @@ node_modules/
 # Netlify Edge Function source directory.
 !netlify/edge-functions/lib/
 !netlify/edge-functions/lib/**
+
+# macOS Finder metadata
+.DS_Store
