@@ -301,7 +301,10 @@ class TestWeek09:
         assert "Tuesday (Oct 20, 2026)" in html and "Thursday (Oct 22, 2026)" in html
 
     def test_source_is_draft_template(self):
-        md = (SITE_ROOT / "weeks" / "week-09.md").read_text(encoding="utf-8")
+        src = SITE_ROOT / "weeks" / "week-09.md"
+        if not src.exists():
+            pytest.skip("week markdown is private source (dev repo only)")
+        md = src.read_text(encoding="utf-8")
         assert 'title: "Comparative Agent Harnesses"' in md
         assert "status: draft" in md
         assert "## Tuesday (Oct 20, 2026)" in md and "## Thursday (Oct 22, 2026)" in md
