@@ -266,7 +266,8 @@ class TestWeek08:
     def test_section_structure_and_dates(self, page8):
         h2 = [h.get_text(strip=True) for h in page8.select(".page-content h2")]
         assert h2 == ["Introduction", "Tuesday (Oct 13, 2026)", "Thursday (Oct 15, 2026)"]
-        assert page8.select(".page-content h3") == []
+        h3 = [" ".join(h.get_text().split()) for h in page8.select(".page-content h3")]
+        assert h3 == ["EXTRA CREDIT (optional): Mini-Project #2plus", "READINGS:", "CODE:"]
 
     def test_introduction_keeps_review_message(self, page8):
         intro = page8.select_one("#introduction").find_next_sibling("p")
@@ -282,12 +283,26 @@ class TestWeek08:
             "Polish your digital portfolio for future interviews and for an optional public presentation.",
         ]
 
-    def test_thursday_left_empty(self, page8):
+    def test_thursday_opens_with_mp2plus_extra_credit(self, page8):
         thu = page8.select_one("#thursday-oct-15-2026")
-        assert thu.find_next_sibling() is None
+        h3 = thu.find_next_sibling()
+        assert h3.name == "h3"
+        assert " ".join(h3.get_text().split()) == "EXTRA CREDIT (optional): Mini-Project #2plus"
+        text = " ".join(h3.find_next_sibling("p").get_text().split())
+        assert text.startswith("Once your MP2 resubmission is in")
+        for must in ["fifteen independent components", "one to two hours", "added to your MP2 score",
+                     "up to +15", "mp2plus-base", "mp2plus-final", "Thursday, Oct 22, 2:40 pm"]:
+            assert must in text, must
 
-    def test_no_new_readings(self, page8):
-        assert page8.select(".page-content a[href]") == []
+    def test_thursday_links(self, page8):
+        hrefs = [a["href"] for a in page8.select(".page-content a[href]")]
+        assert hrefs == [
+            "https://github.com/jon-chun/iphs400-mp2-cms-starter/blob/main/docs/manual_iphs400_mp2plus-web-cms_20261012.md",
+            "https://github.com/jon-chun/iphs400-mp2-cms-starter/blob/main/docs/mp2plus-grading-rubric_20261012.md",
+            "https://www.youtube.com/watch?v=eFB79TYI-Vw",
+            "https://www.youtube.com/watch?v=celLbDMGy8w&t=259s",
+            "https://www.youtube.com/watch?v=i6Q7bXnWGlM",
+        ]
 
 
 class TestWeek09:
