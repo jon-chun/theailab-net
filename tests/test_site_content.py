@@ -294,6 +294,15 @@ class TestWeek08:
                      "up to +15", "mp2plus-base", "mp2plus-final", "Tuesday, Oct 20, 2:40 pm"]:
             assert must in text, must
 
+    def test_mp2plus_correction_note(self, page8):
+        thu = page8.select_one("#thursday-oct-15-2026")
+        h3 = thu.find_next_sibling()
+        note = h3.find_next_sibling("p").find_next_sibling("p")
+        text = " ".join(note.get_text().split())
+        assert text.startswith("Correction posted Oct 12:")
+        assert "Thursday, Oct 22" in text
+        assert "Tuesday, Oct 20, 2:40 pm" in text and "Wednesday, Oct 21, 2:40 pm" in text
+
     def test_thursday_links(self, page8):
         hrefs = [a["href"] for a in page8.select(".page-content a[href]")]
         assert hrefs == [

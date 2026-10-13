@@ -34,9 +34,9 @@
 <tr><td>Class Participation (incl. attendance and lightning presentation)</td><td>20%</td><td>Ongoing</td></tr>
 <tr><td>Weekly Quizzes (lowest two dropped)</td><td>30%</td><td>Weekly, in class</td></tr>
 <tr><td>Mini-Project 1 — Redesign Website (Pass/No-Pass)</td><td>5%</td><td>Thur, Sep 10</td></tr>
-<tr><td>Mini-Project 2 — Redesign Website with Skills (graded)</td><td>5%</td><td>Thu, Oct 15, 2:40 pm</td></tr>
-<tr><td>Mini-Project 3 — Harness + Hooks (graded)</td><td>10%</td><td>TBA</td></tr>
-<tr><td>Mini-Project 4 — SDLC Capstone (graded)</td><td>10%</td><td>TBA</td></tr>
+<tr><td>Mini-Project 2 — Web CMS (Pass/No-Pass)</td><td>5%</td><td>Thu, Oct 15, 2:40 pm</td></tr>
+<tr><td>Mini-Project 3 — TBA (graded)</td><td>10%</td><td>TBA</td></tr>
+<tr><td>Mini-Project 4 — TBA (graded)</td><td>10%</td><td>TBA</td></tr>
 <tr><td>Final Project proposal (required, ungraded)</td><td>—</td><td>Fri, Nov 13</td></tr>
 <tr><td>Written-exam alternative opt-in deadline</td><td>—</td><td>Fri, Nov 13</td></tr>
 <tr><td>Final Project (poster + code + release form)</td><td>20%</td><td>Exam period, Dec 14–18</td></tr>
@@ -50,18 +50,19 @@
 <p>Configure a professional shell/terminal environment with documented customizations (e.g., zsh + <code>.zprofile</code>/<code>.zshrc</code>, XDG base directories, a modern CLI toolkit such as <code>ripgrep</code>, <code>fzf</code>, <code>bat</code>, <code>eza</code>, <code>tmux</code>; VS Code with relevant extensions).</p>
 <p><strong>Deliverable:</strong> a GitHub dotfiles repository (public recommended for portfolio value, or privately shared) with a README documenting your configuration choices and rationale, and a <code>.gitignore</code> showing secrets hygiene. Graded pass/no-pass on completeness and documentation quality.</p>
 
-<h2>Mini-Project 2 — AI Coding Agent Configuration</h2>
-<p><strong>5%, Pass/No-Pass. Due Thursday, October 15, 2:40 pm.</strong></p>
-<p><em>High-level workflow pack.</em> Package 3–5 reusable Claude Code customizations (Skills, a slash command, and/or a subagent) into a small project plugin a classmate can install. The point is to get repeated prompts out of chat and out of <code>CLAUDE.md</code> and into invocable playbooks that speed up review, status checks, and explanation.</p>
-<p><strong>Deliverable:</strong> the plugin repository plus a short (≤3 min) recorded or live demo showing both a typed <code>/command</code> and an auto-triggered Skill.</p>
+<h2>Mini-Project 2 — Build a Web CMS with an AI-SWE Workflow</h2>
+<p><strong>5%, Pass/No-Pass. Due Thursday, October 15, 2:40 pm</strong> (no-penalty grace until Friday, October 16, 2:40 pm).</p>
+<p><em>Spec-driven build.</em> Starting from the instructor's <a href="https://github.com/jon-chun/iphs400-mp2-cms-starter">starter template</a>, build and publish your own web content-management system (CMS) with Claude Code using the manual's AI-SWE workflow: a spec and tickets as GitHub issues, one ticket at a time with tests and a code-review comment before it closes, handoffs and session transcripts, a token budget with a usage ledger, and a written report. The work is scored out of 100 points: Stage 1 (the <code>mp2-mvp</code> tag) is 15 formative points; Stage 2 (the <code>mp2-final</code> tag) is 85 points across human authenticity and judgment, AI-SWE workflow fidelity, core CMS functionality, security and access control, test and code quality, public site and admin UX, report and documentation quality, and compliance. A score of 70 or above is a Pass.</p>
+<p><strong>Deliverable:</strong> your CMS repository tagged <code>mp2-final</code> (public or privately shared with the instructor) containing the artifacts listed in the rubric (spec and ticket issues, code-review findings, handoffs, transcripts, compaction log, token budget and usage ledger, demo data, screenshots, report, and a README with a Generative AI Use Statement), plus the Stage 2 email with the report attached. Full requirements: the <a href="https://github.com/jon-chun/iphs400-mp2-cms-starter/blob/main/docs/manual_iphs400_mp2-web-cms_20260922.md">MP2 manual</a> and the <a href="https://github.com/jon-chun/iphs400-mp2-cms-starter/blob/main/docs/mp2-grading-rubric_20260922.md">MP2 grading rubric</a>.</p>
+<p><strong>Extra credit — Mini-Project #2plus (optional):</strong> a menu of fifteen independent components for your CMS, each worth 2 to 4 points added to your MP2 score (cap +15, counted for every student). Tag <code>mp2plus-final</code> and email the one-page report by <strong>Tuesday, October 20, 2:40 pm</strong> (no-penalty grace until Wednesday, October 21, 2:40 pm). See the <a href="https://github.com/jon-chun/iphs400-mp2-cms-starter/blob/main/docs/manual_iphs400_mp2plus-web-cms_20261012.md">MP2plus manual</a> and the <a href="https://github.com/jon-chun/iphs400-mp2-cms-starter/blob/main/docs/mp2plus-grading-rubric_20261012.md">MP2plus rubric</a>.</p>
 
-<h2>Mini-Project 3 — Agent Harness and Hooks</h2>
+<h2>Mini-Project 3 — TBA</h2>
 <p><strong>10%, graded. Due TBA.</strong></p>
 <p><em>Low-level reliability harness.</em> Add 3–5 lifecycle hooks so the agent formats, logs, injects repo state, or blocks dangerous commands whether or not the model "remembers" the rules.</p>
 <p>Requirements: at least one hook must <strong>deny</strong> a tool call (e.g., destructive <code>git</code>/<code>rm</code> commands); at least one must produce a <strong>side effect</strong> such as lint-on-write or a Stop check that verifies tests actually ran; and the harness must integrate <strong>at least one FOSS extension</strong> from the ecosystem surveyed in Week 8 (observability/usage monitoring, context-engineering utilities, session-history tools, etc.), with the choice justified in the README.</p>
 <p><strong>Deliverable:</strong> the hook configuration, a trace or log showing that the runtime (not the prompt) enforced the behavior, and a 5-minute in-class demo (Week 10) walking through the deny-hook, the side-effect hook, and the trace.</p>
 
-<h2>Mini-Project 4 — SWE/SDLC Best Practices Capstone</h2>
+<h2>Mini-Project 4 — TBA</h2>
 <p><strong>10%, graded. Due TBA.</strong></p>
 <p>Take a real-world, high-impact, non-trivial greenfield web application (instructor-supplied, or self-scoped and instructor-approved) from ideation to a robust minimum viable product (MVP) using a complete spec-driven software development lifecycle: <strong>plan → decompose → implement → test → review</strong>, with <strong>deploy</strong> optional but strongly encouraged (e.g., GitHub Pages, Netlify, or Vercel).</p>
 <p>Use the harness you built in MP1–3. Must include at least one instance of multi-agent/subagent orchestration (parallel dispatch, isolated worktrees, or a reviewer/implementer split) and a CI check (GitHub Actions) that runs the test suite on pull requests.</p>
@@ -99,7 +100,7 @@
 <tr><td>Presentation</td><td>25%</td><td>Clarity of the in-class demo (MP3, Week 10) or presentation (MP4, Week 13), including the ability to answer questions about why the harness is designed as it is</td></tr>
 </table>
 
-<p><strong>Pass/No-Pass mini-projects (MP1, MP2):</strong> Pass earns the full 5%. It requires a working, documented deliverable that meets all stated requirements, submitted on time. A No-Pass earns 0% until resubmitted; one resubmission within one week of feedback is allowed for up to full credit, at instructor discretion.</p>
+<p><strong>Pass/No-Pass mini-projects (MP1, MP2):</strong> Pass earns the full 5%. It requires a working, documented deliverable that meets all stated requirements, submitted on time; for MP2 that means a rubric score of 70 or above out of 100, after any MP2plus points are added. A No-Pass earns 0% until resubmitted; one resubmission within one week of feedback is allowed for up to full credit, at instructor discretion.</p>
 
 </div>
 </main>
