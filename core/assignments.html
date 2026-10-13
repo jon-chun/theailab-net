@@ -34,9 +34,9 @@
 <tr><td>Class Participation (incl. attendance and lightning presentation)</td><td>20%</td><td>Ongoing</td></tr>
 <tr><td>Weekly Quizzes (lowest two dropped)</td><td>30%</td><td>Weekly, in class</td></tr>
 <tr><td>Mini-Project 1 — Redesign Website (Pass/No-Pass)</td><td>5%</td><td>Thur, Sep 10</td></tr>
-<tr><td>Mini-Project 2 — Redesign Website with Skills (graded)</td><td>5%</td><td>Fri, Sep 25</td></tr>
-<tr><td>Mini-Project 3 — Harness + Hooks (graded)</td><td>10%</td><td>Fri, Oct 23 (demos Tu, Oct 27)</td></tr>
-<tr><td>Mini-Project 4 — SDLC Capstone (graded)</td><td>10%</td><td>Fri, Nov 20 (presentations Nov 17/19)</td></tr>
+<tr><td>Mini-Project 2 — Redesign Website with Skills (graded)</td><td>5%</td><td>Thu, Oct 15, 2:40 pm</td></tr>
+<tr><td>Mini-Project 3 — Harness + Hooks (graded)</td><td>10%</td><td>TBA</td></tr>
+<tr><td>Mini-Project 4 — SDLC Capstone (graded)</td><td>10%</td><td>TBA</td></tr>
 <tr><td>Final Project proposal (required, ungraded)</td><td>—</td><td>Fri, Nov 13</td></tr>
 <tr><td>Written-exam alternative opt-in deadline</td><td>—</td><td>Fri, Nov 13</td></tr>
 <tr><td>Final Project (poster + code + release form)</td><td>20%</td><td>Exam period, Dec 14–18</td></tr>
@@ -51,18 +51,18 @@
 <p><strong>Deliverable:</strong> a GitHub dotfiles repository (public recommended for portfolio value, or privately shared) with a README documenting your configuration choices and rationale, and a <code>.gitignore</code> showing secrets hygiene. Graded pass/no-pass on completeness and documentation quality.</p>
 
 <h2>Mini-Project 2 — AI Coding Agent Configuration</h2>
-<p><strong>5%, Pass/No-Pass. Due Friday, September 25.</strong></p>
+<p><strong>5%, Pass/No-Pass. Due Thursday, October 15, 2:40 pm.</strong></p>
 <p><em>High-level workflow pack.</em> Package 3–5 reusable Claude Code customizations (Skills, a slash command, and/or a subagent) into a small project plugin a classmate can install. The point is to get repeated prompts out of chat and out of <code>CLAUDE.md</code> and into invocable playbooks that speed up review, status checks, and explanation.</p>
 <p><strong>Deliverable:</strong> the plugin repository plus a short (≤3 min) recorded or live demo showing both a typed <code>/command</code> and an auto-triggered Skill.</p>
 
 <h2>Mini-Project 3 — Agent Harness and Hooks</h2>
-<p><strong>10%, graded. Due Friday, October 23 (demos Tuesday, October 27).</strong></p>
+<p><strong>10%, graded. Due TBA.</strong></p>
 <p><em>Low-level reliability harness.</em> Add 3–5 lifecycle hooks so the agent formats, logs, injects repo state, or blocks dangerous commands whether or not the model "remembers" the rules.</p>
 <p>Requirements: at least one hook must <strong>deny</strong> a tool call (e.g., destructive <code>git</code>/<code>rm</code> commands); at least one must produce a <strong>side effect</strong> such as lint-on-write or a Stop check that verifies tests actually ran; and the harness must integrate <strong>at least one FOSS extension</strong> from the ecosystem surveyed in Week 8 (observability/usage monitoring, context-engineering utilities, session-history tools, etc.), with the choice justified in the README.</p>
 <p><strong>Deliverable:</strong> the hook configuration, a trace or log showing that the runtime (not the prompt) enforced the behavior, and a 5-minute in-class demo (Week 10) walking through the deny-hook, the side-effect hook, and the trace.</p>
 
 <h2>Mini-Project 4 — SWE/SDLC Best Practices Capstone</h2>
-<p><strong>10%, graded. Due Friday, November 20 (presentations Nov 17/19).</strong></p>
+<p><strong>10%, graded. Due TBA.</strong></p>
 <p>Take a real-world, high-impact, non-trivial greenfield web application (instructor-supplied, or self-scoped and instructor-approved) from ideation to a robust minimum viable product (MVP) using a complete spec-driven software development lifecycle: <strong>plan → decompose → implement → test → review</strong>, with <strong>deploy</strong> optional but strongly encouraged (e.g., GitHub Pages, Netlify, or Vercel).</p>
 <p>Use the harness you built in MP1–3. Must include at least one instance of multi-agent/subagent orchestration (parallel dispatch, isolated worktrees, or a reviewer/implementer split) and a CI check (GitHub Actions) that runs the test suite on pull requests.</p>
 <p><strong>Deliverable:</strong> the repository (spec documents, PR history, CI runs, README), plus a 5-minute in-class presentation (Week 13). Graded on process adherence, final PR/deliverable quality, and documentation.</p>

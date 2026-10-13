@@ -191,7 +191,7 @@ class TestWeek06:
 
     def test_final_due_date_stated(self, page):
         intro = page.select_one(".page-content p").get_text(" ", strip=True)
-        assert "Tuesday, Oct 6" in intro
+        assert "Thursday, Oct 15, 2:40 pm" in intro
 
 
 @pytest.fixture(scope="module")
@@ -279,7 +279,7 @@ class TestWeek08:
         tue = page8.select_one("#tuesday-oct-13-2026")
         items = [" ".join(li.get_text().split()) for li in tue.find_next_sibling("ul").select("li")]
         assert items == [
-            "Review Mini-Project #2 and re-submit it by the new deadline, Thursday, Oct 15.",
+            "Review Mini-Project #2 and re-submit it by the new deadline, Thursday, Oct 15, 2:40 pm (no-penalty grace until Friday, Oct 16, 2:40 pm).",
             "Polish your digital portfolio for future interviews and for an optional public presentation.",
         ]
 
@@ -291,7 +291,7 @@ class TestWeek08:
         text = " ".join(h3.find_next_sibling("p").get_text().split())
         assert text.startswith("Once your MP2 resubmission is in")
         for must in ["fifteen independent components", "one to two hours", "added to your MP2 score",
-                     "up to +15", "mp2plus-base", "mp2plus-final", "Thursday, Oct 22, 2:40 pm"]:
+                     "up to +15", "mp2plus-base", "mp2plus-final", "Tuesday, Oct 20, 2:40 pm"]:
             assert must in text, must
 
     def test_thursday_links(self, page8):
