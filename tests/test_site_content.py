@@ -290,8 +290,9 @@ class TestWeek08:
         assert " ".join(h3.get_text().split()) == "EXTRA CREDIT (optional): Mini-Project #2plus"
         text = " ".join(h3.find_next_sibling("p").get_text().split())
         assert text.startswith("Once your MP2 resubmission is in")
-        for must in ["fifteen independent components", "one to two hours", "added to your MP2 score",
-                     "up to +15", "mp2plus-base", "mp2plus-final", "Tuesday, Oct 20, 2:40 pm"]:
+        for must in ["assigned Sunday, Oct 11", "fifteen independent exercises", "15 to 60 minutes",
+                     "5 to 10 points", "added to your MP2 grade", "up to +30", "mp2plus-base",
+                     "mp2plus-final", "Tuesday, Oct 20, 2:40 pm"]:
             assert must in text, must
 
     def test_mp2plus_correction_note(self, page8):
