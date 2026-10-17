@@ -1,36 +1,28 @@
 const RESEND_API_URL = "https://api.resend.com/emails";
-
-async function sendMail({ to, subject, html, text }) {
+async function sendMail({ to, subject, text }) {
   const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { skipped: true };
   const from = process.env.MAIL_FROM || "onboarding@resend.dev";
-
-  if (!apiKey) {
-    console.warn("RESEND_API_KEY not set; skipping email send:", subject);
-    return { skipped: true };
+  const recipients = Array.isArray(to) ? to : [to];
+  if (/[\r\n]/.test(from) || !recipients.length || recipients.some((email) =>
+    typeof email !== "string" || email.length > 254 || !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(email))) {
+    console.warn("mail: invalid_configuration");
+    return { skipped: false, ok: false };
   }
-
-  const res = await fetch(RESEND_API_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: Array.isArray(to) ? to : [to],
-      subject,
-      html,
-      text: text || undefined,
-    }),
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    console.error("Resend API error", res.status, body);
-    return { skipped: false, ok: false, status: res.status };
+  try {
+    const res = await fetch(RESEND_API_URL, {
+      method: "POST", redirect: "error", signal: AbortSignal.timeout(5000),
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to: recipients,
+        subject: String(subject || "Course account notification").replace(/[\x00-\x1f\x7f]/g, " ").slice(0, 200),
+        text: String(text || "Check the course account administration page.").slice(0, 8000) }),
+    });
+    if (res.body) await res.body.cancel().catch(() => {});
+    if (!res.ok) console.warn("mail: delivery_failed");
+    return { skipped: false, ok: res.ok, status: res.status };
+  } catch {
+    console.warn("mail: delivery_failed");
+    return { skipped: false, ok: false };
   }
-
-  return { skipped: false, ok: true };
 }
-
 module.exports = { sendMail };

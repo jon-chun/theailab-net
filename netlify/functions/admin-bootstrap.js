@@ -1,7 +1,8 @@
-const { loadUsers, saveUsers } = require("./util/users-store");
+const { usersStore } = require("./util/users-store");
 const { hashPassword } = require("./util/auth");
 
 const USERNAME_RE = /^[a-zA-Z0-9._-]{3,40}$/;
+const RESERVED_USERNAMES = new Set(["__proto__", "constructor", "prototype"]);
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -28,22 +29,41 @@ exports.handler = async (event) => {
   const password = String(body.password || "");
   const name = String(body.name || "").trim();
 
-  if (!USERNAME_RE.test(username) || password.length < 8) {
+  if (!USERNAME_RE.test(username) || RESERVED_USERNAMES.has(username) || password.length < 8) {
     return { statusCode: 400, body: JSON.stringify({ error: "Invalid username or password." }) };
   }
 
-  const users = await loadUsers();
+  // Prepared outside the CAS mutator.
   const { salt, hash } = hashPassword(password);
-  users[username] = {
-    username,
-    name: name || username,
-    salt,
-    passwordHash: hash,
-    status: "approved",
-    role: "admin",
-    createdAt: new Date().toISOString(),
-  };
-  await saveUsers(users);
+  const createdAt = new Date().toISOString();
 
+  let created;
+  try {
+    const repository = usersStore(event);
+    created = await repository.mutateUsers((users) => {
+      if (Object.hasOwn(users, username)) return { changed: false, value: false };
+      users[username] = {
+        username,
+        name: name || username,
+        salt,
+        passwordHash: hash,
+        status: "approved",
+        role: "admin",
+        createdAt,
+      };
+      return { changed: true, value: true };
+    });
+  } catch {
+    console.error("admin-bootstrap: storage_unavailable");
+    return {
+      statusCode: 503,
+      headers: { "Cache-Control": "no-store" },
+      body: JSON.stringify({ error: "Service temporarily unavailable. Try again shortly." }),
+    };
+  }
+
+  if (!created) {
+    return { statusCode: 409, body: JSON.stringify({ error: "That username is already registered." }) };
+  }
   return { statusCode: 201, body: JSON.stringify({ message: `Admin account '${username}' created.` }) };
 };

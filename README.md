@@ -10,7 +10,7 @@ on Moodle.
 
 - **Instructor:** Jon Chun
 - **Schedule:** Tu/Th, 2:40–4:00 PM · Timberlake #5 (Evans Conference Room)
-- **Live site:** _add Netlify URL here once deployed_
+- **Live site:** https://theailab.net
 
 ## Repository Structure
 
@@ -27,17 +27,20 @@ on Moodle.
 ├── weeks/                   # One page per week, week-01.html … week-15.html
 ├── css/
 │   └── style.css            # Single shared stylesheet, no build step
+├── netlify/functions/       # Login, session and Google sign-in functions
 ├── tests/                   # pytest suite validating the site
 │   ├── conftest.py
 │   ├── test_unit_html_structure.py
 │   ├── test_integration_links.py
 │   ├── test_e2e_site.py
-│   └── requirements.txt
+│   ├── requirements.txt
+│   └── js/                  # Node tests for the sign-in functions (node --test)
 └── .github/workflows/       # CI: deploy to Netlify on push to main
 ```
 
 The site is static HTML/CSS with no build step or JS framework. Every page
-shares one stylesheet and a common header/nav/hero/footer skeleton.
+shares one stylesheet and a common header/nav/hero/footer skeleton. Login,
+session and Google sign-in run as Netlify Functions in `netlify/functions/`.
 
 ## Local Development
 
@@ -48,8 +51,12 @@ python3 -m http.server 8080
 # then open http://localhost:8080/
 ```
 
-No install step is required to view the site — only the test suite has
-dependencies.
+No install step is required to view the static pages. The login, session and
+Google sign-in functions only run under Netlify Dev (`npx netlify dev`, which
+serves the site and the functions on `http://localhost:8888`); the plain
+Python server above does not execute them. Use a separate test site, a
+development Google client and a test session secret for local runs, never
+production values.
 
 ## Running the Tests
 
@@ -65,17 +72,21 @@ integrity of every page:
   every page is reachable from `index.html` (no orphaned pages)
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r tests/requirements.txt
-pytest tests/ -v
+uv run --no-project --with pytest --with beautifulsoup4 --with lxml pytest tests/ -q
 ```
 
 Run a single test file or test:
 
 ```bash
-pytest tests/test_unit_html_structure.py -v
-pytest tests/test_integration_links.py::TestNavConsistency::test_nav_links_resolve -v
+uv run --no-project --with pytest --with beautifulsoup4 --with lxml pytest tests/test_unit_html_structure.py -v
+uv run --no-project --with pytest --with beautifulsoup4 --with lxml pytest tests/test_integration_links.py::TestNavConsistency::test_nav_links_resolve -v
+```
+
+The Node tests for the sign-in functions need no installed packages and make
+no network requests:
+
+```bash
+node --test tests/js/*.test.mjs
 ```
 
 ## Deployment
@@ -93,6 +104,51 @@ secrets, set under **Settings → Secrets and variables → Actions**:
 Until those secrets are configured, the workflow run will fail at the deploy
 step — everything else (checkout) will still succeed. Deployment can also be
 triggered manually from the Actions tab (`workflow_dispatch`).
+
+## Runtime configuration
+
+The secrets above only deploy the site. The login and Google sign-in functions
+and the course gate read their settings at runtime from the Netlify site
+settings (Netlify UI, production context, Functions scope). Never put these
+values in `netlify.toml`, in GitHub secrets, or in this repository. The values
+below are placeholders only.
+
+| Variable | Required / default | Purpose |
+|---|---|---|
+| `SESSION_SECRET` | existing, required | High-entropy secret that signs sessions; also the input for the separate OAuth key. Placeholder `<SESSION_SECRET>`. |
+| `GATE_ENABLED` | existing | The literal `false` keeps the course gate off on the live site. Set `true` only in a separate, verified deploy. |
+| `GOOGLE_OAUTH_ENABLED` | new; disabled unless exactly `true` | Kill switch for both Google sign-in endpoints. Any other value, or no value, returns 503 from them. |
+| `GOOGLE_CLIENT_ID` | new | `<CLIENT_ID>.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | new, secret | `<GOOGLE_CLIENT_SECRET>` |
+| `SITE_URL` | new, required | Exactly `https://theailab.net` in production; `http://localhost:8888` or `https://localhost:8888` locally. No path, query, credentials, fragment or trailing slash. |
+| `ADMIN_EMAILS` | new; empty means no Google admins | Comma-separated exact Google emails that receive the admin role. Placeholder `<ADMIN_GOOGLE_EMAIL>`. No wildcards. |
+| `AUTO_APPROVE_EMAILS` | new; optional, empty | Comma-separated exact Gmail or Kenyon roster emails approved automatically. |
+| `AUTO_APPROVE_DOMAINS` | new; optional, empty | The only supported value is `kenyon.edu`, checked against Google's hosted-domain claim. |
+| `ADMIN_NOTIFY_EMAIL` | new; optional | One instructor address notified of new pending accounts. Placeholder `<NOTIFICATION_EMAIL>`. If unset, check the admin queue directly. |
+| `RESEND_API_KEY`, `MAIL_FROM` | existing, optional | Mail settings. Missing or failing mail never blocks the approval queue. |
+| `ADMIN_BOOTSTRAP_SECRET` | existing | Recovery path for creating the first password admin. Keep it secured; disable it once Google admin access is tested. |
+| `AWS_LAMBDA_JS_RUNTIME` | set in the Netlify UI | `nodejs22.x`, applied at deployment. |
+
+Netlify captures these values at deploy time. **Redeploy after any change**,
+including `GATE_ENABLED`, the kill switch, roster and admin lists, the client
+secret and the session secret. To switch Google sign-in off, set
+`GOOGLE_OAUTH_ENABLED` to `false` and redeploy; password login keeps working.
+Rotating `SESSION_SECRET` and redeploying logs everyone out.
+
+Rollout notes for the owner (full detail in the private spec,
+`dev/tech-spec_implement-google-oauth_v2_20261011.md`, which is not published):
+
+- **Phase 0, console setup:** create the Google Web OAuth client and consent
+  branding, register the callback
+  `https://theailab.net/.netlify/functions/google-callback`, and keep
+  `GOOGLE_OAUTH_ENABLED` and `GATE_ENABLED` at `false` while preparing. Back up
+  the user store privately first.
+- **Phase 3, owner-led publication:** the owner reviews and commits the
+  implementation, runs the guarded sync from the private repository, and pushes
+  the public repository. Deploy with the kill switch off, verify that the Google
+  endpoints return 503 and password login still works, then set
+  `GOOGLE_OAUTH_ENABLED` to `true`, redeploy, and run the browser checks. Leave
+  `GATE_ENABLED` at `false` during the soak.
 
 ## Content Source and Provenance
 

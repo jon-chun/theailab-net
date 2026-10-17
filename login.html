@@ -25,7 +25,14 @@
 <main class="content-wrapper">
 <div class="page-content">
 
-<p>Course pages (syllabus, readings, projects, policies, and weekly content) require a course account. Enrolled students without an account can <a href="register.html">register here</a>.</p>
+<p>Sign in with your Kenyon Google Workspace or Gmail account. Course access may need instructor approval. You can also <a href="register.html">register</a> or use your existing course username and password.</p>
+
+<form id="google-form" method="GET" action="/.netlify/functions/google-start">
+<input type="hidden" name="next" id="google-next" value="/index.html"/>
+<p><button type="submit">Sign in with Google</button></p>
+</form>
+<p id="google-message" role="status"></p>
+<p>Or log in with a username and password:</p>
 
 <form id="login-form" novalidate>
 <p>
@@ -53,11 +60,62 @@
 (function () {
   var form = document.getElementById("login-form");
   var message = document.getElementById("login-message");
+  var googleMessage = document.getElementById("google-message");
+  var googleNext = document.getElementById("google-next");
+
+  // Same route set and sanitiser as the server-side safeNextPath in
+  // netlify/functions/util/google-oauth.js; keep the two in step.
+  var FALLBACK_NEXT = "/index.html";
+  var NEXT_PATHS = {};
+  ["/", "/index.html", "/account.html", "/admin"].forEach(function (p) { NEXT_PATHS[p] = true; });
+  ["about", "admin", "assignments", "policies", "schedule", "syllabus"].forEach(function (name) {
+    NEXT_PATHS["/core/" + name + ".html"] = true;
+  });
+  for (var i = 1; i <= 15; i++) {
+    NEXT_PATHS["/weeks/week-" + (i < 10 ? "0" : "") + i + ".html"] = true;
+  }
+
+  function safeNextPath(next) {
+    if (typeof next !== "string" || next.length > 512 || next.charAt(0) !== "/" ||
+        next.indexOf("//") === 0 || /[\\\x00-\x20\x7f]/.test(next)) return FALLBACK_NEXT;
+    try {
+      var decoded = decodeURIComponent(next);
+      if (/[\\\x00-\x1f\x7f]/.test(decoded)) return FALLBACK_NEXT;
+      var url = new URL(next, "https://redirect.invalid");
+      if (url.origin !== "https://redirect.invalid" || url.username || url.password ||
+          url.pathname.indexOf("%") !== -1 || !NEXT_PATHS[url.pathname]) return FALLBACK_NEXT;
+      return url.pathname + url.search + url.hash;
+    } catch (err) { return FALLBACK_NEXT; }
+  }
 
   function paramsNext() {
     var params = new URLSearchParams(window.location.search);
-    return params.get("next") || "/index.html";
+    return safeNextPath(params.get("next"));
   }
+
+  var safeNext = paramsNext();
+  googleNext.value = safeNext;
+
+  // Fixed messages for the callback's redirect markers; never query text.
+  var GOOGLE_MESSAGES = {
+    pending: "Your Google account is waiting for instructor approval. Sign in again after approval.",
+    rejected: "This account was not approved for course access. Contact the instructor.",
+    cancelled: "Google sign-in was cancelled. You can try again.",
+    "error=account": "Use a Gmail account or your Kenyon Google Workspace account.",
+    "error=account-conflict": "This sign-in needs instructor assistance. Your existing password account remains available.",
+    "error=google": "Google sign-in did not complete. Restart sign-in or use your existing password account."
+  };
+  (function showGoogleMessage() {
+    var params = new URLSearchParams(window.location.search);
+    var key = null;
+    if (params.get("pending") === "1") key = "pending";
+    else if (params.get("rejected") === "1") key = "rejected";
+    else if (params.get("cancelled") === "1") key = "cancelled";
+    else if (params.get("error") === "account") key = "error=account";
+    else if (params.get("error") === "account-conflict") key = "error=account-conflict";
+    else if (params.get("error") === "google") key = "error=google";
+    if (key) googleMessage.textContent = GOOGLE_MESSAGES[key];
+  })();
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -77,7 +135,7 @@
       })
       .then(function (result) {
         if (result.ok) {
-          window.location.href = paramsNext();
+          window.location.href = safeNext;
         } else {
           message.textContent = result.data.error || "Login failed.";
         }

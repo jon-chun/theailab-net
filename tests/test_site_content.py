@@ -20,7 +20,7 @@ RETIRED_LABELS = {"Schedule", "Assignments"}
 WEEK06_TITLE = "Week 6: AI-SWE with Mini-Project #2 - A Web CMS"
 WEEK07_TITLE = "Week 7: Moar AI-SWE please"
 WEEK08_TITLE = "Week 8: Review and Revise Mini-Project #2"
-WEEK09_TITLE = "Week 9: Comparative Agent Harnesses"
+WEEK09_TITLE = "Week 9: AI Ethics, Safety, Reverse Engineering Anything (REA) and the end of Traditional Software"
 
 # Common misspellings that have slipped into drafts before.
 MISSPELLINGS = [
@@ -315,25 +315,29 @@ class TestWeek08:
         ]
 
 
+@pytest.fixture(scope="module")
+def page9():
+    return _soup(SITE_ROOT / "weeks" / "week-09.html")
+
+
 class TestWeek09:
-    def test_schedule_link_disabled_with_title(self):
+    def test_schedule_link_active_with_title(self):
         links = {nn: (text, enabled) for nn, text, enabled in _schedule_week_links()}
-        assert links["09"] == (WEEK09_TITLE, False)
+        assert links["09"] == (WEEK09_TITLE, True)
 
-    def test_is_pending_draft_with_dates(self):
-        html = (SITE_ROOT / "weeks" / "week-09.html").read_text(encoding="utf-8")
-        assert "sync:state pending" in html
-        assert "Tuesday (Oct 20, 2026)" in html and "Thursday (Oct 22, 2026)" in html
+    def test_title_and_hero(self, page9):
+        assert page9.select_one("section.hero h1").get_text(" ", strip=True) == WEEK09_TITLE
+        assert page9.title.get_text() == f"{WEEK09_TITLE} – IPHS 400: Frontiers in AI"
 
-    def test_source_is_draft_template(self):
-        src = SITE_ROOT / "weeks" / "week-09.md"
-        if not src.exists():
-            pytest.skip("week markdown is private source (dev repo only)")
-        md = src.read_text(encoding="utf-8")
-        assert 'title: "Comparative Agent Harnesses"' in md
-        assert "status: draft" in md
-        assert "## Tuesday (Oct 20, 2026)" in md and "## Thursday (Oct 22, 2026)" in md
-        assert "](http" not in md, "Week 9 sections start empty for manual editing"
+    def test_is_live(self, page9):
+        assert page9.select_one(".notice-pending") is None
+        assert "sync:state live" in (SITE_ROOT / "weeks" / "week-09.html").read_text(encoding="utf-8")
+
+    def test_section_structure_and_dates(self, page9):
+        h2 = [h.get_text(strip=True) for h in page9.select(".page-content h2")]
+        assert h2 == ["Introduction", "Tuesday (Oct 20, 2026)", "Thursday (Oct 22, 2026)"]
+        h3 = [h.get_text(strip=True) for h in page9.select(".page-content h3")]
+        assert h3 == ["Presentations", "Readings", "Coding"] * 2
 
 
 class TestWeekDates:

@@ -4,6 +4,6 @@
   "version": "1.0.0",
   "description": "IPHS 400: Frontiers in AI course site (static HTML + Netlify Functions for auth)",
   "dependencies": {
-    "@netlify/blobs": "^8.1.0"
+    "@netlify/blobs": "10.7.13"
   }
 }

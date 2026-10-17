@@ -83,7 +83,14 @@ function getSessionFromEvent(event) {
   return verify(token);
 }
 
+function hasPasswordCredentials(user) {
+  return !!user && user.provider !== "google" &&
+    typeof user.salt === "string" && /^[a-f0-9]{32}$/i.test(user.salt) &&
+    typeof user.passwordHash === "string" && /^[a-f0-9]{128}$/i.test(user.passwordHash);
+}
+
 module.exports = {
+  hasPasswordCredentials,
   SESSION_COOKIE,
   hashPassword,
   verifyPassword,

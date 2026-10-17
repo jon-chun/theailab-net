@@ -28,7 +28,7 @@
 <p id="admin-status">Loading&hellip;</p>
 <table id="users-table" style="display:none; width:100%;">
 <thead>
-<tr><th>Name</th><th>Username</th><th>Status</th><th>Role</th><th>Requested</th><th>Action</th></tr>
+<tr><th>Name</th><th>Username</th><th>Email</th><th>Provider</th><th>Status</th><th>Role</th><th>Requested</th><th>Action</th></tr>
 </thead>
 <tbody id="users-body"></tbody>
 </table>
@@ -72,6 +72,8 @@
 
       tr.appendChild(cell(u.name));
       tr.appendChild(cell(u.username));
+      tr.appendChild(cell(u.email || ""));
+      tr.appendChild(cell(u.provider || "password"));
       tr.appendChild(cell(u.status));
       tr.appendChild(cell(u.role));
       tr.appendChild(cell(u.createdAt ? new Date(u.createdAt).toLocaleString() : ""));

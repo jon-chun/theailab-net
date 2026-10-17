@@ -63,7 +63,11 @@
         return;
       }
       statusEl.textContent = "Logged in as " + data.username + " (" + data.role + ").";
-      form.style.display = "block";
+      if (data.canUsePassword === true) {
+        form.style.display = "block";
+      } else {
+        message.textContent = "This account uses Google sign-in. Manage your Google password in your Google account.";
+      }
     })
     .catch(function () {
       statusEl.textContent = "Could not check login status.";

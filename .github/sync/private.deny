@@ -50,3 +50,7 @@ codex-session-*.md              # Codex CLI session exports
 *.log
 *.pem
 *.key
+prototypes/**                   # web-redesign prototype rounds (2026-10-15); not part of the live site
+reports/**                      # agent run reports and scripts
+raw-exp01.png                   # stray screenshot at repo root
+.gitleaksignore                 # dev-repo secret-scan config (vendored playcanvas in prototypes/)
