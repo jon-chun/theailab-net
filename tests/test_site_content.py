@@ -20,7 +20,7 @@ RETIRED_LABELS = {"Schedule", "Assignments"}
 WEEK06_TITLE = "Week 6: AI-SWE with Mini-Project #2 - A Web CMS"
 WEEK07_TITLE = "Week 7: Moar AI-SWE please"
 WEEK08_TITLE = "Week 8: Review and Revise Mini-Project #2"
-WEEK09_TITLE = "Week 9: AI Ethics, Safety, Reverse Engineering Anything (REA) and the end of Traditional Software"
+WEEK09_TITLE = "Week 9: AI Ethics/Safety, Reverse Engineer Anything (REA), and The End of Traditional Software"
 
 # Common misspellings that have slipped into drafts before.
 MISSPELLINGS = [
